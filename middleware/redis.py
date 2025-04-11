@@ -6,13 +6,14 @@ from fastapi import FastAPI, Request
 import json
 import time
 from datetime import datetime as dt, timedelta, timezone
-from config import REDIS_HOST, REDIS_PORT
+from config import REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_DB_NAME
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis_client = redis.Redis(
-        host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=False)
+        host=REDIS_HOST, port=REDIS_PORT, password= REDIS_PASSWORD,
+        db=REDIS_DB_NAME, decode_responses=False, ssl=True)
     FastAPICache.init(RedisBackend(redis_client), prefix="gptapi-cache")
     try:
         yield
