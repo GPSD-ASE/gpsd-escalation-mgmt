@@ -7,7 +7,7 @@ echo "Using latest tag: $LATEST_TAG"
 
 TODAY=$(date +%Y-%m-%d)
 
-REPO_URL="https://github.com/GPSD-ASE/gpsd-user-mgmt.git"
+REPO_URL="https://github.com/GPSD-ASE/gpsd-escalation-mgmt.git"
 echo "Using repository URL: $REPO_URL"
 
 echo "Generating changelog entries since $LATEST_TAG..."
