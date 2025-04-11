@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: gpsd/gpsd-escalation-mgmt
-  tag: v0.0.9
+  tag: v0.0.10
   pullPolicy: Always
 
 service:
