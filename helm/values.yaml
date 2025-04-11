@@ -19,10 +19,9 @@ env:
   VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200"
   VAULT_AUTH_METHOD: "kubernetes"
   VAULT_ROLE: "gpsd-escalation-mgmt"
-  REDIS_HOST: "localhost"
+  REDIS_HOST: "host.docker.internal"
   REDIS_PORT: "6379"
-  GRAPHHOPPER_URL: "https://graphhopper.com/api/1/route"
-  TOMTOM_URL: "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
+  PREDICTHQ_SEARCH_URL: "https://api.predicthq.com/v1/events/"
 
 serviceAccount:
   create: true

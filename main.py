@@ -12,7 +12,7 @@ from routes.stats import router as stats_router
 from routes.analysis import router as analysis_router
 
 app = FastAPI(dependencies=[Depends(verify_api_key)],
-              root_path="/gpt", lifespan=lifespan)
+                root_path="/gpt", lifespan=lifespan)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
