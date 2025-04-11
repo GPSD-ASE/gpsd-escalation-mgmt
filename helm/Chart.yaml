@@ -2,5 +2,5 @@ apiVersion: v2
 name: gpsd-escalation-mgmt
 description: A Helm chart for deploying the GPSD Escalation Management service.
 type: application
-version: 0.0.3
+version: 0.0.4
 appVersion: "1.0.0"
