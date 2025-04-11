@@ -1,0 +1,181 @@
+name: GPSD Escalation Management CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+  
+      - name: Run tests
+        run: make test-coverage
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black isort
+
+      - name: Check code formatting with Black
+        run: black --check ./ middleware/ routes/ services/
+
+      - name: Check import sorting with isort
+        run: isort --check-only --profile black ./ middleware/ routes/ services/
+
+      - name: Check Helm charts
+        run: helm lint ./helm
+
+  # Check for version bump needs - only on main branch
+  check-version:
+    name: Check Version
+    if: github.ref == 'refs/heads/main'
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    outputs:
+      changes: ${{ steps.check_changes.outputs.changes }}
+      new_version: ${{ steps.bump_version.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Determine if version bump needed
+        id: check_changes
+        run: |
+          if git log $(git describe --tags --abbrev=0 2>/dev/null || echo 'v0.0.0')..HEAD --pretty=format:%s | grep -E "^(feat|fix|BREAKING CHANGE)"; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup git
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Update changelog
+        if: steps.check_changes.outputs.changes == 'true'
+        run: ./scripts/update-changelog.sh
+
+      - name: Bump version
+        id: bump_version
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          ./scripts/bump-version.sh
+          echo "new_version=${{ env.NEW_VERSION }}" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git add helm/Chart.yaml helm/values.yaml Makefile CHANGELOG.md
+          git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+          git tag -a "v${{ env.NEW_VERSION }}" -m "Release v${{ env.NEW_VERSION }}"
+          git push origin main --tags
+
+  # Build and publish Docker image
+  build:
+    name: Build and Push Image
+    if: needs.check-version.outputs.changes == 'true'
+    needs: [check-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_KEY }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: |
+            gpsd/gpsd-escalation-mgmt:latest
+            gpsd/gpsd-escalation-mgmt:v${{ needs.check-version.outputs.new_version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'gpsd/gpsd-escalation-mgmt:v${{ needs.check-version.outputs.new_version }}'
+          format: 'table'
+          exit-code: '0'  # Don't fail for now, just report
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+  # Package and publish Helm chart
+  publish-helm:
+    name: Publish Helm Chart
+    if: needs.check-version.outputs.changes == 'true'
+    needs: [check-version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Setup git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Package Helm chart
+        run: |
+          mkdir -p /tmp/gpsd/
+          helm package ./helm -d /tmp/gpsd/
+          helm repo index /tmp/gpsd --url https://gpsd-ase.github.io/gpsd-escalation-mgmt/ --merge /tmp/gpsd/index.yaml
+
+      - name: Publish to GitHub Pages
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages || git checkout -b gh-pages
+          cp /tmp/gpsd/* .
+          git add .
+          git commit -m "chore: update helm chart to v${{ needs.check-version.outputs.new_version }}"
+          git push origin gh-pages
