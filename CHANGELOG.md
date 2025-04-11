@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.5] - 2025-04-11
+## [0.0.6] - 2025-04-11
 
 
-### Maintenance
-\n- Minor updates and improvements
+### Fixed
+\n4cfa776 fix: change port to 7134 where required
 
