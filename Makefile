@@ -76,6 +76,21 @@ test-clean:
 	rm -rf .coverage
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
+# Linting commands
+.PHONY: lint-black lint-isort
+lint: lint-black lint-isort
+lint-black:
+	pip install black
+	@echo "Checking with black..."
+	black --check ./ middleware/ routes/ services/
+lint-fix:
+	@echo "Running black..."
+	black ./ middleware/ routes/ services/
+lint-isort:
+	pip install isort
+	@echo "Running isort..."
+	isort --check-only ./ middleware/ routes/ services/
+
 # Kubernetes commands
 .PHONY: helm helm-uninstall helm-clean
 develop: helm-uninstall build-image push-image helm
