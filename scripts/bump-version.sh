@@ -38,6 +38,7 @@ awk -v old="tag: v$CURRENT_VERSION" -v new="tag: v$NEW_VERSION" '{gsub(old, new)
 DATE=$(date +%Y-%m-%d)
 awk -v date="$DATE" -v new_ver="$NEW_VERSION" '/## \[Unreleased\]/{print; print ""; print "## [" new_ver "] - " date; next}1' CHANGELOG.md > tmp && mv tmp CHANGELOG.md
 
-echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+echo "NEW_VERSION=$NEW_VERSION"
+echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
 
 echo "Version bumped to $NEW_VERSION"
