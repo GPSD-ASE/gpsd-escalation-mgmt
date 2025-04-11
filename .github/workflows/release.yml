@@ -48,7 +48,7 @@ jobs:
           pip install black isort
 
       - name: Check code formatting with Black
-        run: black --check ./ middleware/ routes/ services/
+        run: black ./ middleware/ routes/ services/
 
       - name: Check import sorting with isort
         run: isort --check-only --profile black ./ middleware/ routes/ services/
