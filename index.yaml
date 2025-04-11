@@ -3,12 +3,12 @@ entries:
   gpsd-escalation-mgmt:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-04-11T12:03:01.867177+01:00"
+    created: "2025-04-11T11:28:21.042620871Z"
     description: A Helm chart for deploying the GPSD Escalation Management service.
-    digest: eff718b6d6eb2e9f600e9edb31b9a0e3db41727266bd4b3071c68707ae312496
+    digest: 3a5d10c49b07ebb188cad2eea5a5ff26176dc63f879080654c7235eb7f4101f7
     name: gpsd-escalation-mgmt
     type: application
     urls:
-    - https://gpsd-ase.github.io/gpsd-escalation-mgmt/gpsd-escalation-mgmt-0.0.0.tgz
-    version: 0.0.0
-generated: "2025-04-11T12:03:01.866746+01:00"
+    - https://gpsd-ase.github.io/gpsd-escalation-mgmt/gpsd-escalation-mgmt-0.0.2.tgz
+    version: 0.0.2
+generated: "2025-04-11T11:28:21.042186831Z"
