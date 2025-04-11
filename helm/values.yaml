@@ -1,0 +1,37 @@
+namespace: gpsd
+
+replicaCount: 1
+
+image:
+  repository: gpsd/gpsd-escalation-mgmt
+  tag: "0.0.0"
+  pullPolicy: Always
+
+service:
+  - name: http
+    type: ClusterIP
+    port: 7000
+    targetPort: 7000
+
+env:
+  ESCALATION_MGMT_ENV: "TEST"
+  ESCALATION_MGMT_APP_PORT: "7222"
+  VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200"
+  VAULT_AUTH_METHOD: "kubernetes"
+  VAULT_ROLE: "gpsd-escalation-mgmt"
+  REDIS_HOST: "localhost"
+  REDIS_PORT: "6379"
+  GRAPHHOPPER_URL: "https://graphhopper.com/api/1/route"
+  TOMTOM_URL: "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
+
+serviceAccount:
+  create: true
+  name: gpsd-escalation-mgmt-sa
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80

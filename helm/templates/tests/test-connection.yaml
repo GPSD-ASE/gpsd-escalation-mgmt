@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "gpsd-escalation-mgmt.fullname" . }}-test-connection"
+  labels:
+    '{{- include "gpsd-escalation-mgmt.labels" . | nindent 4 }}'
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "gpsd-escalation-mgmt.fullname" . }}:{{ index .Values.service 0 "port" }}']
+  restartPolicy: Never

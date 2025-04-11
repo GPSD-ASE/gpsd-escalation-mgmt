@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-gpsd-escalation-mgmt
+  labels:
+    app: {{ .Release.Name }}-gpsd-escalation-mgmt
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-gpsd-escalation-mgmt
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-gpsd-escalation-mgmt
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: gpsd-escalation-mgmt
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            {{- range .Values.service }}
+            - containerPort: {{ .targetPort }}
+              name: {{ .name | default "http" }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-token-secret
+                  key: VAULT_TOKEN
+          volumeMounts:
+            - name: vault-ca-cert
+              mountPath: /etc/ssl/certs/vault.pem
+              subPath: vault.pem
+              readOnly: true
+      volumes:
+        - name: vault-ca-cert
+          configMap:
+            name: vault-ca-cert

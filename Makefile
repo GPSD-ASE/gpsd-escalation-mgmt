@@ -6,7 +6,6 @@ CHART_DIRECTORY = helm
 REMOTE_CHART_REPOSITORY = gpsd-ase.github.io
 VERSION := $(shell grep "version:" helm/Chart.yaml | head -1 | sed 's/version: //')
 
-
 # Docker commands
 .PHONY: docker build-image push-image run-image clean-image
 docker: build-image push-image
@@ -85,6 +84,11 @@ helm:
 	@echo "Upgrading/Installing $(DEPLOYMENT) Helm chart..."
 	helm upgrade --install $(DEPLOYMENT) ./helm --set image.tag=v$(VERSION) --namespace $(NAMESPACE)
 
+helm-lint:
+	@echo "Linting Helm chart..."
+	helm lint ./$(CHART_DIRECTORY)
+	helm template ./$(CHART_DIRECTORY) --set image.tag=v$(VERSION) --namespace $(NAMESPACE) > /dev/null
+
 helm-uninstall:
 	@echo "Uninstalling $(DEPLOYMENT) from Kubernetes..."
 	helm uninstall demo -n $(NAMESPACE) || true
@@ -136,3 +140,6 @@ helm-repo-update:
 	helm repo add $(SERVICE_NAME) https://$(REMOTE_CHART_REPOSITORY)/$(SERVICE_NAME)/
 	helm repo update
 	helm repo list
+
+refresh:
+	git fetch && git pull origin main --rebase
