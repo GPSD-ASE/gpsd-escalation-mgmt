@@ -5,7 +5,7 @@ services:
     build: .
     container_name: incident-escalation-api
     ports:
-      - "7222:7222"
+      - "7134:7134"
     env_file:
       - .env
     restart: unless-stopped

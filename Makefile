@@ -22,7 +22,7 @@ run-image:
 	@echo "Running Docker image $(IMAGE_NAME):v$(VERSION)..."
 	docker network create gpsd-network || true
 	docker run -d --name mock-vault --network gpsd-network -p 8200:8200 hashicorp/vault:latest server -dev -dev-root-token-id=root
-	docker run -p 7222:7222 --network gpsd-network -e VAULT_ADDR=http://mock-vault:8200 -e VAULT_TOKEN=root $(IMAGE_NAME):v$(VERSION)
+	docker run -p 7134:7134 --network gpsd-network -e VAULT_ADDR=http://mock-vault:8200 -e VAULT_TOKEN=root $(IMAGE_NAME):v$(VERSION)
 
 clean: clean-container clean-network clean-image 
 

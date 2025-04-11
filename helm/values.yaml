@@ -10,12 +10,12 @@ image:
 service:
   - name: http
     type: ClusterIP
-    port: 7000
-    targetPort: 7000
+    port: 7134
+    targetPort: 7134
 
 env:
   ESCALATION_MGMT_ENV: "TEST"
-  ESCALATION_MGMT_APP_PORT: "7222"
+  ESCALATION_MGMT_APP_PORT: "7134"
   VAULT_ADDR: "http://vault.vault.svc.cluster.local:8200"
   VAULT_AUTH_METHOD: "kubernetes"
   VAULT_ROLE: "gpsd-escalation-mgmt"
