@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 7134
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7222"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7134"]
