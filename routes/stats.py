@@ -19,5 +19,5 @@ async def stats_json(request: Request, ip: Optional[str] = Query(None),
 @router.get("/stats/plot")
 @limiter.limit("5000/minute")
 async def stats_plot(request: Request):
-    """API Endpoint to plot request logs."""
+    """API Endpoint to plot request log."""
     return await plot_stats(request)
