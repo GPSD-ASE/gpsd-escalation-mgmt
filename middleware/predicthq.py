@@ -19,7 +19,7 @@ async def get_nearby_events(latitude: float, longitude: float, datetime: str):
     end_datetime = f"{end_datetime.strftime('%Y-%m-%dT%H:%M:%S')}Z"
     start_datetime = f"{start_datetime.strftime('%Y-%m-%dT%H:%M:%S')}Z"
     params = {
-        "within": f"600m@{latitude},{longitude}",
+        "within": f"1000m@{latitude},{longitude}",
         "start.gte": start_datetime,
         "start.lte": end_datetime,
         "category": "concerts,festivals,performing-arts,sports,community",
