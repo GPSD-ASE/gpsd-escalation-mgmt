@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.10] - 2025-04-11
+## [0.0.11] - 2025-04-13
 
 
 ### Fixed
-\n29562c9 fix: syntax
+\n1d1ff42 fix: trigger
 
